@@ -1,0 +1,114 @@
+<div class="row">
+    <div class="span4">
+        <div class="blockoff-right">
+            <ul class="nav nav-list">
+                <li class="nav-header">{{ t._('Action') }}</li>
+                {% for l, m in menu %}
+                    <li>
+                        <a href="{{ url(m) }}">
+                            <i class="icon-chevron-right pull-right"></i>
+                            {{ l }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="span12">
+        <div class="box">
+            <div class="box-header">
+                <i class="icon-list icon-large"></i>
+                <h5>{{ title }}</h5>
+            </div>
+
+            <div class="box-content box-table">
+                {{ form('/admin/' ~ controller ~ '/' ~ action, 'method' : 'get', 'class': 'form-list-search') }}
+                <table class="table table-hover tablesorter">
+                    <thead>
+                    <tr>
+                        {% for name, view in list_view['fields'] %}
+                            <th class="header">{{ view['label'] }}</th>
+                        {% endfor %}
+                        <th class="header">{{ t._('Action') }}</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <!-- search -->
+                    <tr>
+                        {% for name, view in list_view['fields'] %}
+                            <td>
+                                {% if view['search'] is defined and view['search'] %}
+                                    {% if search[name] is defined %}{% set search_value = search[name] %}{% else %}{% set search_value = '' %}{% endif %}
+                                    {% if view['type'] == 'select' %}
+                                        {{ select(name, carofw['app_list_strings'][view['options']], 'using': ['id', 'name'], 'value': search_value, 'useEmpty': true, 'emptyText': view['label'], 'emptyValue': '', 'class': 'list-search') }}
+                                    {% else %}
+                                        <input type="{{ view['type'] }}" name="{{ name }}" placeholder="{{ view['label'] }}" value="{{ search_value }}" class="list-search" />
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                        <td><input type="submit" name="submit" class="btn" value="{{ t._('Search') }}"></td>
+                    </tr>
+
+                    {% for row in data %}
+                        <tr>
+                            {% for name, view in list_view['fields'] %}
+                                <td>
+                                    {# check type and render with type #}
+                                    {% include 'view_default/fields_type_list.tpl' %}
+                                </td>
+                            {% endfor %}
+
+                            <td class="td-actions">
+                                {% if link_action is null %}
+                                    <a href="{{ url('/admin/' ~ controller ~ '/' ~ action_edit ~ '/' ~  row.id) }}" class="btn btn-small btn-warning" title="{{ t._('Edit') }}">
+                                        <i class="btn-icon-only icon-edit"></i>
+                                    </a>
+                                    <a href="{{ url('/admin/' ~ controller ~ '/' ~ action_delete ~ '/' ~  row.id) }}" class="btn btn-small btn-danger delete-record" title="{{ t._('Delete') }}">
+                                        <i class="btn-icon-only icon-remove"></i>
+                                    </a>
+                                {% else %}
+                                    {% for a in link_action %}
+                                        <a href="<?php echo str_replace('<ID>', $row->id, $a['link']) ?>" class="btn btn-small btn-warning" title="{{ a['label'] }}">
+                                            <i class="btn-icon-only {% if a['icon'] is defined %}{{ a['icon'] }}{% else %}icon-cog{% endif %}"></i>
+                                        </a>
+                                    {% endfor %}
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {{ end_form() }}
+
+            </div>
+
+        </div>
+
+        <!-- pagination -->
+        <nav class="pagination pagination-centered">
+            <ul>
+                <li><a href="{{ current_url }}">First</a></li>
+                <li><a href="{{ current_url }}&page={{ page.before }}">Previous</a></li>
+                <li>
+                    <a href="javascript:;">
+                        <select style="margin: 0; width: auto;" onchange="location.href='{{ current_url }}&page=' + $(this).val();">
+                            {% for i in 1..page.total_pages %}
+                                <option{% if page.current == i %} selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </a>
+                </li>
+                <li><a href="{{ current_url }}&page={{ page.next }}">Next</a></li>
+                <li><a href="{{ current_url }}&page={{ page.last }}">Last</a></li>
+            </ul>
+        </nav>
+
+    </div>
+
+</div>
