@@ -48,8 +48,8 @@ class ControllerBase extends MyController
             $model = new $model_path();
             if (empty($model->menu)) {
                 $model->menu = array(
-                    'View ' . ucfirst($this->controller_name) => '/admin/' . $this->controller_name . '/list',
-                    'Create ' . ucfirst($this->controller_name) => '/admin/' . $this->controller_name . '/edit'
+                    'View ' . ucfirst($this->controller_name) => '/'. $this->url->backendUrl .'/' . $this->controller_name . '/list',
+                    'Create ' . ucfirst($this->controller_name) => '/'. $this->url->backendUrl .'/' . $this->controller_name . '/edit'
                 );
             }
             return $model;
@@ -145,16 +145,17 @@ class ControllerBase extends MyController
      * save/update a record
      *
      * @param array $data fields value, can use post data from form. This function filter same edit_view and save to db
+     * @param array return errors message
      * @return bool|null|object record
      */
-    protected function saveRecord($data)
+    protected function saveRecord($data, &$errors_msg = array())
     {
         $model_name = !empty($data['model_name']) ? $data['model_name'] : null;
 
         // get model
         $model = $this->getModel($model_name);
 
-        $id = $data['id'];
+        $id = !empty($data['id']) ? $data['id'] : null;
 
         if (!empty($id)) { // update a record
             // get record
@@ -166,6 +167,7 @@ class ControllerBase extends MyController
             }
 
             if ($row->update() == false) {
+                $errors_msg = $row->getMessages();
                 return false;
             }
 
@@ -179,6 +181,7 @@ class ControllerBase extends MyController
 
             // save
             if ($model->save() == false) {
+                $errors_msg = $model->getMessages();
                 return false;
             }
 
@@ -199,7 +202,7 @@ class ControllerBase extends MyController
         $model = $this->getModel();
 
         if (is_null($model)) {
-            $this->response->redirect('/admin/dashboard');
+            $this->backendRedirect('/dashboard');
         }
 
         $query_urls = $this->request->getQuery();
@@ -246,7 +249,7 @@ class ControllerBase extends MyController
         $this->view->link_action = $this->link_action;
 
         $query_urls = empty($query_urls) ? array('nosearch' => 1) : $query_urls;
-        $this->view->current_url = $this->url->get("/admin/$controller/$action", $query_urls);
+        $this->view->current_url = $this->url->backendUrl("/$controller/$action", $query_urls);
 
         $exists = $this->view->exists($controller . '/' . $action);
         if (!$exists) {
@@ -272,7 +275,7 @@ class ControllerBase extends MyController
         }
 
         if ($data == null) {
-            $this->response->redirect('/admin/' . $this->controller_name);
+            $this->backendRedirect('/' . $this->controller_name);
         }
 
         $title = $this->t->_('Detail ') . $this->t->_($this->model_name) . ': ' . $data->{$model->detail_view['title']};
@@ -397,7 +400,7 @@ class ControllerBase extends MyController
         $this->view->subpanel_name = $subpanel_name;
 
         $query_urls = empty($query_urls) ? array('nosearch' => 1) : $query_urls;
-        $this->view->current_uri = "/admin/$controller/$action/$rel_model/$current_model/$current_id/$subpanel_name";
+        $this->view->current_uri = '/' . $this->url->backendUrl . "/$controller/$action/$rel_model/$current_model/$current_id/$subpanel_name";
         $this->view->current_url = $this->url->get($this->view->current_uri, $query_urls);
 
         $exists = $this->view->exists($controller . '/' . $action);
@@ -517,7 +520,7 @@ class ControllerBase extends MyController
             $action_detail = $this->request->getPost('action_detail');
             $action_detail = ($action_detail) ? $action_detail : $this->action_detail;
 
-            $this->response->redirect('/admin/' . $this->controller_name . '/' . $action_detail . '/' . $id);
+            $this->backendRedirect('/' . $this->controller_name . '/' . $action_detail . '/' . $id);
         }
     }
 
@@ -552,7 +555,7 @@ class ControllerBase extends MyController
                 $this->flash->success($this->t->_('Great, record was deleted successfully!'));
             }
 
-            $this->response->redirect('/admin/' . $this->controller_name . '/list');
+            $this->backendRedirect('/' . $this->controller_name . '/list');
 
         } else {
             if ($this->request->isPost()) {
@@ -562,7 +565,7 @@ class ControllerBase extends MyController
                     $this->deleteRecord($id);
                 }
 
-                    $this->response->redirect('/admin/' . $this->controller_name . '/list');
+                    $this->backendRedirect('/' . $this->controller_name . '/list');
             }
         }
     }
