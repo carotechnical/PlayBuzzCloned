@@ -127,4 +127,91 @@ return array(
         )
     ),
 
+    // playbuzz cloned
+    'buzz' => array(
+        'fields' => array(
+            'name' => array(
+                "type"    => Column::TYPE_VARCHAR,
+                "size"    => 255,
+                "notNull" => true,
+            ),
+            'slug' => array(
+                "type"    => Column::TYPE_VARCHAR,
+                "size"    => 255,
+                "notNull" => true,
+            ),
+            'type' => array(
+                "type"    => Column::TYPE_VARCHAR,
+                "size"    => 255,
+                "notNull" => true,
+            ),
+            'thumbnail' => array(
+                "type"    => Column::TYPE_VARCHAR,
+                "size"    => 255,
+                "notNull" => true,
+            ),
+            'description' => array(
+                "type"    => Column::TYPE_TEXT,
+                "notNull" => false,
+            ),
+            'category_id' => array(
+                "type"    => Column::TYPE_INTEGER,
+                "size"    => 10,
+                "notNull" => true,
+            ),
+        ),
+    ),
+    'categories' => array(
+        'fields' => array(
+            'name' => array(
+                "type"    => Column::TYPE_VARCHAR,
+                "size"    => 255,
+                "notNull" => true,
+            ),
+            'slug' => array(
+                "type"    => Column::TYPE_VARCHAR,
+                "size"    => 255,
+                "notNull" => true,
+            ),
+            'description' => array(
+                "type"    => Column::TYPE_TEXT,
+                "notNull" => false,
+            ),
+            'parent_id' => array(
+                "type"    => Column::TYPE_INTEGER,
+                "size"    => 10,
+                "notNull" => true,
+            ),
+        )
+    ),
+    'news_list' => array(
+        'fields' => array(
+            'buzz_id' => array(
+                "type"    => Column::TYPE_INTEGER,
+                "size"    => 10,
+                "notNull" => true,
+            ),
+            'description' => array(
+                "type"    => Column::TYPE_TEXT,
+                "notNull" => true,
+            )
+        )
+    ),
+    'quiz_personality' => array(
+        'buzz_id' => array(
+            "type"    => Column::TYPE_INTEGER,
+            "size"    => 10,
+            "notNull" => true,
+        ),
+        'description' => array(
+            "type"    => Column::TYPE_TEXT,
+            "notNull" => true,
+        ),
+        'result' => array(
+            "type"    => Column::TYPE_TEXT,
+            "notNull" => true,
+        ),
+    )
+
+
 );
