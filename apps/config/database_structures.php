@@ -180,7 +180,7 @@ return array(
             'parent_id' => array(
                 "type"    => Column::TYPE_INTEGER,
                 "size"    => 10,
-                "notNull" => true,
+                "notNull" => false,
             ),
         )
     ),

@@ -33,6 +33,16 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ url('/'~ carofw['backendUrl'] ~'/buzz') }}">
+                            <i class="icon-bullhorn icon-large"></i> Buzz
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('/'~ carofw['backendUrl'] ~'/categories') }}">
+                            <i class="icon-folder-open icon-large"></i> Categories
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ url('/'~ carofw['backendUrl'] ~'/users') }}">
                             <i class="icon-user icon-large"></i> Users
                         </a>

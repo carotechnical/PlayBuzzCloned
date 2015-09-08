@@ -14,6 +14,10 @@ return array(
         'users_status_list' => array(
             'Active' => 'Active',
             'Inactive' => 'Inactive'
+        ),
+        'buzz_type_list' => array(
+            'NewsList' => 'News List',
+            'QuizPersonality' => 'Quiz Personality'
         )
     ),
 );
