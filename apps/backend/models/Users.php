@@ -28,6 +28,10 @@ class Users extends ModelBase
 
     public $list_view = array(
         'fields' => array(
+            'avatar' => array(
+                'type' => 'image',
+                'label' => 'Avatar'
+            ),
             'username' => array(
                 'type' => 'text',
                 'label' => 'Username',
@@ -49,6 +53,10 @@ class Users extends ModelBase
     public $detail_view = array(
         'title' => 'name',
         'fields' => array(
+            'avatar' => array(
+                'type' => 'image',
+                'label' => 'Avatar'
+            ),
             'username' => array(
                 'type' => 'text',
                 'label' => 'Username'
@@ -89,6 +97,10 @@ class Users extends ModelBase
     public $edit_view = array(
         'title' => 'name',
         'fields' => array(
+            'avatar' => array(
+                'type' => 'image',
+                'label' => 'Avatar'
+            ),
             'username' => array(
                 'type' => 'text',
                 'label' => 'Username',
