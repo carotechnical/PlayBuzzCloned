@@ -124,15 +124,25 @@
                         <i class="fa fa-cog"></i> <span>{{ t._('Settings') }}</span>
                     </a>
                 </li>
-                <li>
+                <li class="treeview">
                     <a href="{{ url('/'~ carofw['backendUrl'] ~'/categories') }}">
                         <i class="fa fa-navicon"></i> <span>{{ t._('Categories') }}</span>
+                        <i class="fa fa-angle-left pull-right"></i>
                     </a>
+                    <ul class="treeview-menu">
+                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/categories') }}"><i class="fa fa-reorder"></i> {{ t._('View Categories') }}</a></li>
+                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/categories/edit') }}"><i class="fa fa-plus"></i> {{ t._('Create Category') }}</a></li>
+                    </ul>
                 </li>
-                <li>
+                <li class="treeview">
                     <a href="{{ url('/'~ carofw['backendUrl'] ~'/buzz') }}">
                         <i class="fa fa-bullhorn"></i> <span>{{ t._('Buzz') }}</span>
+                        <i class="fa fa-angle-left pull-right"></i>
                     </a>
+                    <ul class="treeview-menu">
+                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/buzz') }}"><i class="fa fa-reorder"></i> {{ t._('View Buzz') }}</a></li>
+                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/buzz/edit') }}"><i class="fa fa-plus"></i> {{ t._('Create Buzz') }}</a></li>
+                    </ul>
                 </li>
             </ul>
         </section>
