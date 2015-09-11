@@ -12,13 +12,14 @@
 namespace Modules\Backend\Models;
 
 
-class AuthRoles extends ModelBase
+class AuthRoles extends ModelCustom
 {
     public $id;
     public $created;
     public $user_created_id;
     public $deleted;
     public $name;
+    public $unique_name;
     public $status;
     public $description;
 
@@ -29,9 +30,15 @@ class AuthRoles extends ModelBase
                 'label' => 'Name',
                 'link' => true
             ),
-            'description' => array(
+            'unique_name' => array(
                 'type' => 'text',
-                'label' => 'Description'
+                'label' => 'Unique Name'
+            ),
+            'status' => array(
+                'type' => 'select',
+                'label' => 'Status',
+                'options' => 'users_status_list',
+                'search' => true
             )
         )
     );
@@ -44,10 +51,19 @@ class AuthRoles extends ModelBase
                 'label' => 'Name',
                 'required' => true
             ),
+            'unique_name' => array(
+                'type' => 'text',
+                'label' => 'Unique Name',
+                'required' => true
+            ),
+            'status' => array(
+                'type' => 'select',
+                'label' => 'Status',
+                'options' => 'users_status_list',
+            ),
             'description' => array(
                 'type' => 'textarea',
-                'label' => 'Description',
-                'required' => true
+                'label' => 'Description'
             ),
         )
     );
@@ -58,6 +74,15 @@ class AuthRoles extends ModelBase
             'name' => array(
                 'type' => 'text',
                 'label' => 'Name'
+            ),
+            'unique_name' => array(
+                'type' => 'text',
+                'label' => 'Unique Name'
+            ),
+            'status' => array(
+                'type' => 'select',
+                'label' => 'Status',
+                'options' => 'users_status_list',
             ),
             'description' => array(
                 'type' => 'text',
@@ -87,9 +112,34 @@ class AuthRoles extends ModelBase
 
     public $menu;
 
+    public static function permissionSavePath()
+    {
+        return APP_PATH . '/apps/backend/permissions/';
+    }
+
+    public static function resourcesPath()
+    {
+        return APP_PATH . '/apps/backend/permissions/resources.php';
+    }
+
+    public static function rolesPath()
+    {
+        return APP_PATH . '/apps/backend/permissions/roles.php';
+    }
+
+    public static function publicResources()
+    {
+        return array(
+            'errors' => '*',
+            'index' => array('index', 'logout'),
+            'rest' => '*'
+        );
+    }
+
     public function initialize()
     {
         $user = new Users();
         $this->menu = $user->menu;
     }
+
 }

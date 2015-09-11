@@ -11,25 +11,43 @@
 
 namespace Modules\Backend\Controllers;
 
+
+use Modules\Backend\Models\AuthRoles;
+use Modules\Backend\Models\UserGroups;
 use Modules\Backend\Models\UserGroupsUsers;
 use Modules\Backend\Models\Users;
 
-class IndexController extends ControllerBase
+class IndexController extends ControllerCustom
 {
 
     private function _setSessionUser($user)
     {
-        $groups = UserGroupsUsers::find("user_id = '{$user->id}'");
+        $group_ids = UserGroupsUsers::find("user_id = '{$user->id}'");
+        $roles = array();
+        foreach ($group_ids as $group_id) {
+            $group = UserGroups::findFirst($group_id);
+            if ($group) {
+                $role = AuthRoles::findFirst($group->role_id);
+                $roles[$role->unique_name] = $role->unique_name;
+            }
+        }
 
         $this->session->set('auth', array(
             'id'    => $user->id,
-            'name'  => $user->name,
-            'groups' => $groups
+            'username' => $user->username,
+            'email' => $user->email,
+            'roles' => $roles
         ));
     }
 
     public function indexAction()
     {
+        // auth
+        $auth = $this->session->get('auth');
+        if ($auth) {
+            $this->backendRedirect('/dashboard');
+        }
+
         if ($this->request->isPost()) {
             $username = $this->request->getPost('username');
             $password = $this->request->getPost('password');
@@ -50,5 +68,12 @@ class IndexController extends ControllerBase
         }
 
         $this->view->setTemplateAfter('empty');
+    }
+
+    public function logoutAction()
+    {
+        $this->session->destroy();
+        $this->response->redirect();
+        $this->backendRedirect();
     }
 }

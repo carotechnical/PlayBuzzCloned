@@ -11,24 +11,36 @@
 
 namespace Modules\Backend\Controllers;
 
+
+use Modules\Backend\Models\Users;
 use Modules\Core\MyController;
-use Phalcon\Annotations\Exception;
-use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class ControllerBase extends MyController
 {
 
     // base controller
+    protected $action_list = 'list';
     protected $action_detail = 'detail';
     protected $action_edit = 'edit';
     protected $action_delete = 'delete';
+	// action
+    protected $link_detail = null;
     // button action
     protected $link_action = null;
 
+    /**
+     * initialize
+     */
     protected function initialize()
     {
         parent::initialize();
-        $this->tag->setTitle('Management System');
+        $this->tag->appendTitle('Admin Page | ');
+        // auth
+        $auth = $this->session->get('auth');
+        if ($auth) {
+            $current_user = Users::findFirst($auth['id']);
+            $this->view->setVar('current_user', $current_user);
+        }
     }
 
     /**
@@ -39,17 +51,18 @@ class ControllerBase extends MyController
      */
     protected function getModel($model_name = null)
     {
+		$model_focus = $this->model_name;
         if ($model_name) {
-            $this->model_name = $model_name;
+            $model_focus = $model_name;
         }
 
-        if ($this->model_name) {
-            $model_path = '\\Modules\Backend\Models\\' . $this->model_name;
+        if ($model_focus) {
+            $model_path = '\\Modules\Backend\Models\\' . $model_focus;
             $model = new $model_path();
             if (empty($model->menu)) {
                 $model->menu = array(
-                    'View ' . ucfirst($this->controller_name) => '/'. $this->url->backendUrl .'/' . $this->controller_name . '/list',
-                    'Create ' . ucfirst($this->controller_name) => '/'. $this->url->backendUrl .'/' . $this->controller_name . '/edit'
+                    'View ' . ucfirst($this->controller_name) => '/portal/' . $this->controller_name . '/list',
+                    'Create ' . ucfirst($this->controller_name) => '/portal/' . $this->controller_name . '/edit'
                 );
             }
             return $model;
@@ -226,13 +239,7 @@ class ControllerBase extends MyController
         // pagination
         $currentPage = $this->request->getQuery('page');
         $paginator_limit = 20; // @TODO
-        $paginator = new PaginatorModel(array(
-            "data"  => $list_data,
-            "limit" => $paginator_limit,
-            "page"  => $currentPage > 0 ? $currentPage : 1
-        ));
-        // get page
-        $page = $paginator->getPaginate();
+        $page = $model->pagination($list_data, $paginator_limit, $currentPage);
 
         $this->view->page = $page;
         $this->view->data = $page->items;
@@ -242,6 +249,7 @@ class ControllerBase extends MyController
         $controller = strtolower($this->controller_name);
         $action = strtolower($this->action_name);
 
+        $this->view->model_name = $this->model_name;
         $this->view->controller = $controller;
         $this->view->action = $action;
         $this->view->action_detail = $this->action_detail;
@@ -294,6 +302,8 @@ class ControllerBase extends MyController
         $this->view->controller = $controller;
         $this->view->action = $action;
         $this->view->menu = $model->menu;
+		$this->view->action_edit = $this->action_edit;
+        $this->view->link_detail = $this->link_detail;
 
         $exists = $this->view->exists($controller . '/' . $action);
         if (!$exists) {
@@ -325,6 +335,7 @@ class ControllerBase extends MyController
         $this->view->title = $title;
 
         $this->view->edit_view = $model->edit_view;
+		$this->view->model = $model;
         $this->view->data = $data;
 
         $controller = strtolower($this->controller_name);
@@ -377,13 +388,7 @@ class ControllerBase extends MyController
         // pagination
         $currentPage = (int) $_GET["page"];
         $paginator_limit = 20; // @TODO
-        $paginator = new PaginatorModel(array(
-            "data"  => $list_data,
-            "limit" => $paginator_limit,
-            "page"  => $currentPage
-        ));
-        // get page
-        $page = $paginator->getPaginate();
+        $page = $model->pagination($list_data, $paginator_limit, $currentPage);
 
         $this->view->page = $page;
         $this->view->data = $page->items;
@@ -532,12 +537,13 @@ class ControllerBase extends MyController
      * Delete Record
      *
      * @param $id
+     * @param $model_name
      * @return mixed
      */
-    protected function deleteRecord($id)
+    protected function deleteRecord($id, $model_name = null)
     {
         // get model
-        $model = $this->getModel();
+        $model = $this->getModel($model_name);
         $data = $model::findFirst($id);
         $data->deleted = 1;
         return $data->update();
@@ -546,12 +552,14 @@ class ControllerBase extends MyController
     /**
      * Delete Record
      *
-     * @param null $id
+     * @param null|int $id
+     * @param $model_name
+     * @return mixed
      */
-    public function deleteAction($id = null)
+    public function deleteAction($id = null, $model_name = null)
     {
         if ($id) {
-            $result = $this->deleteRecord($id);
+            $result = $this->deleteRecord($id, $model_name);
 
             if ($result == false) {
                 $this->flash->error($this->t->_('Fail, record was not deleted successfully!'));
@@ -559,7 +567,11 @@ class ControllerBase extends MyController
                 $this->flash->success($this->t->_('Great, record was deleted successfully!'));
             }
 
-            $this->backendRedirect('/' . $this->controller_name . '/list');
+            if ($this->request->getQuery('return')) {
+                return $this->backendRedirect('/' . $this->request->getQuery('return'));
+            }
+
+            return $this->backendRedirect("/{$this->controller_name}/{$this->action_list}");
 
         } else {
             if ($this->request->isPost()) {
@@ -569,7 +581,7 @@ class ControllerBase extends MyController
                     $this->deleteRecord($id);
                 }
 
-                    $this->backendRedirect('/' . $this->controller_name . '/list');
+                return $this->backendRedirect("/{$this->controller_name}/{$this->action_list}");
             }
         }
     }

@@ -17,7 +17,7 @@ use Phalcon\Db\Column;
 use Phalcon\Db\Index;
 use Phalcon\Text;
 
-class SettingsController extends ControllerBase
+class SettingsController extends ControllerCustom
 {
     protected $model_name = 'Settings';
 
@@ -76,7 +76,11 @@ class SettingsController extends ControllerBase
                     }
 
                     if ($create_index == true) {
-                        $this->db->addIndex($table_name, null, new Index($index, $index_data['fields'], $index_data['type']));
+                        if (strtolower($index_data['type']) == 'index') {
+                            $this->db->addIndex($table_name, null, new Index($index, $index_data['fields']));
+                        } else {
+                            $this->db->addIndex($table_name, null, new Index($index, $index_data['fields'], $index_data['type']));
+                        }
                     }
                 }
 
@@ -128,7 +132,11 @@ class SettingsController extends ControllerBase
                 }
 
                 foreach($table_data['indexes'] as $index => $index_data) {
-                    $new_columns['indexes'][] = new Index($index, $index_data['fields'], $index_data['type']);
+                    if (strtolower($index_data['type']) == 'index') {
+                        $new_columns['indexes'][] = new Index($index, $index_data['fields']);
+                    } else {
+                        $new_columns['indexes'][] = new Index($index, $index_data['fields'], $index_data['type']);
+                    }
                 }
 
                 $this->db->createTable($table_name, null, $new_columns);
@@ -161,6 +169,9 @@ class SettingsController extends ControllerBase
             fwrite($file, "<?php\n return " . var_export($resources, true) . ";\n");
             fclose($file);
         }
+
+        $this->flash->success($this->t->_('Rebuild Resources success'));
+        $this->backendRedirect('/settings');
     }
 
     /**

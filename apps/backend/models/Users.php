@@ -14,7 +14,7 @@ use Phalcon\Mvc\Model\Validator\PresenceOf;
 use Phalcon\Mvc\Model\Validator\Uniqueness;
 use Phalcon\Validation;
 
-class Users extends ModelBase
+class Users extends ModelCustom
 {
     public $id;
     public $created;
@@ -89,7 +89,8 @@ class Users extends ModelBase
                         'type' => 'select',
                         'label' => 'Status'
                     ),
-                )
+                ),
+                'buttons' => true
             )
         )
     );
