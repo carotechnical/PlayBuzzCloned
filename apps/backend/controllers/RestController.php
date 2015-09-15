@@ -24,9 +24,11 @@ class RestController extends Controller
      * Structure:
      * <model/function> => <method>
      * Example:
-     * users/list => get
+     * Users/list => get
      */
-    protected $register_api = array();
+    protected $register_api = array(
+        'AuthRoles/find' => 'get'
+    );
 
     /**
      * initialize
@@ -63,9 +65,8 @@ class RestController extends Controller
     /**
      * @param $model
      * @param $function
-     * @param null $param
      */
-    public function executeAction($model, $function, $param = null)
+    public function executeAction($model, $function)
     {
         if (!$model || !$function) {
             return $this->returnError(ERROR_EMPTYDATA);
@@ -83,8 +84,11 @@ class RestController extends Controller
         $method = $this->register_api[$register_key];
         switch(strtolower($method)) {
             case 'get':
-                $params = explode('/', $param);
-                if ( method_exists($focus, $function) ) {
+                $params = $this->request->getQuery('params');
+                $params = base64_decode($params);
+                $params = @json_decode($params, true);
+                $params = ($params) ? $params : array();
+                if (method_exists($focus, $function)) {
                     $data = call_user_func_array(array($focus, $function), $params);
                 }
                 break;
@@ -94,7 +98,8 @@ class RestController extends Controller
                     break;
                 }
                 $params = $this->request->getPost('params');
-                $params = implode(',', $params);
+                $params = @json_decode($params, true);
+                $params = ($params) ? $params : array();
                 if ( method_exists($focus, $function) ) {
                     $data = call_user_func_array(array($focus, $function), $params);
                 }
