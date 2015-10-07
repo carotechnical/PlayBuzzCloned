@@ -19,6 +19,7 @@
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link rel="stylesheet" href="{{ static_url() }}/themes/backend/css/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="{{ static_url() }}/themes/backend/css/style.css">
 
     <script>
         var base_url = '{{ url() }}';
@@ -106,6 +107,58 @@
                     </a>
                 </li>
                 <li class="treeview">
+                    <a href="">
+                        <i class="fa fa-cubes"></i>
+                        <span>{{ t._('Own Buzz') }}</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="treeview">
+                            <a href="">
+                                <i class="fa fa-map-signs"></i>
+                                <span>{{ t._('List') }}</span>
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li>
+                                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/newslist') }}">
+                                        <i class="fa fa-reorder"></i>
+                                        <span>{{ t._('View') }}</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/newslist/edit') }}">
+                                        <i class="fa fa-plus"></i>
+                                        <span>{{ t._('Create') }}</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="treeview">
+                            <a href="">
+                                <i class="fa fa-check-square-o"></i>
+                                <span>{{ t._('Personality Quiz') }}</span>
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li>
+                                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/quizpersonality') }}">
+                                        <i class="fa fa-reorder"></i>
+                                        <span>{{ t._('View') }}</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/quizpersonality/edit') }}">
+                                        <i class="fa fa-plus"></i>
+                                        <span>{{ t._('Create') }}</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </li>
+                <li class="treeview">
                     <a href="{{ url('/'~ carofw['backendUrl'] ~'/users') }}">
                         <i class="fa fa-users"></i>
                         <span>{{ t._('Users') }}</span>
@@ -168,6 +221,7 @@
 <script src="{{ static_url() }}/themes/backend/plugins/chartjs/Chart.min.js"></script>
 <!-- AdminLTE -->
 <script src="{{ static_url() }}/themes/backend/js/theme.js"></script>
+<script src="{{ static_url() }}/themes/backend/js/functions.js"></script>
 
 </body>
 </html>

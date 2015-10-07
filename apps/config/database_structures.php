@@ -191,15 +191,32 @@ return array(
     ),
     'news_list' => array(
         'fields' => array(
-            'buzz_id' => array(
-                "type"    => Column::TYPE_INTEGER,
-                "size"    => 10,
+            'name' => array(
+                "type"    => Column::TYPE_VARCHAR,
+                "size"    => 255,
                 "notNull" => true,
             ),
             'description' => array(
                 "type"    => Column::TYPE_TEXT,
+                "notNull" => false,
+            ),
+            'status' => array(
+                "type" => Column::TYPE_VARCHAR,
+                "size" => 125,
                 "notNull" => true,
-            )
+            ),
+            'thumbnail_url' => array(
+                "type" => Column::TYPE_TEXT,
+                "notNull" => false,
+            ),
+            'footer_text' => array(
+                "type" => Column::TYPE_TEXT,
+                "notNull" => false,
+            ),
+            'data_items' => array(
+                "type" => Column::TYPE_TEXT,
+                "notNull" => false,
+            ),
         )
     ),
     'quiz_personality' => array(

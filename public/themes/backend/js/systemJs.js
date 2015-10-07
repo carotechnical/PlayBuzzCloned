@@ -38,6 +38,25 @@ jQuery(function() {
         });
     });
 });
+
+function custom_upload_file(obj){
+    var output = $(obj).attr('output');
+    var parent = $(obj).attr('parent');
+    var formData = new FormData();
+    formData.append('file', $(obj)[0].files[0]);
+    formData.append('location', $(obj).attr('location'));
+    $.ajax({
+        type: "POST",
+        url: backend_url + "/index/upload",
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function (json) {
+            $(obj).parents('.'+parent).find('.'+output).val(json.data[0].path);
+        }
+    });
+}
 function caro_list_relate(rel_model, current_model, current_id, subpanel_name) {
     $.get(backend_url + '/index/popup/' + rel_model + '/' + current_model + '/' + current_id + '/' + subpanel_name, function(data) {
         $('#systemModalContent').html(data);

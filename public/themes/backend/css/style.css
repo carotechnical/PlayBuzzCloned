@@ -1,0 +1,50 @@
+.highlight-box{
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #ECECEC;
+    position: relative;
+    border: 1px solid #CCC;
+}
+.highlight-box hr{
+    border-color: #BBB;
+}
+.highlight-box:after, .pl-small-list:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+.pl-close-btn{
+    position: absolute;
+    top: 2px;
+    right: 2px;
+}
+.pl-small-list{
+    margin-bottom: 10px;
+}
+.pl-small-item{
+    width: 25%;
+    float: left;
+    margin: 5px;
+    padding: 15px;
+    background-color: #DCDCDC;
+    border: 1px dashed #9E9E9E;
+}
+.pl-small-list-answer{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.pl-small-list-answer li{
+    line-height: 20px;
+    height: 25px;
+}
+.pl-small-list-answer li select{
+    float: right;
+}
+.pl-small-list-answer li span{
+    max-width: 140px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inline-block;
+}
