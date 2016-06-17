@@ -14,7 +14,7 @@
                         <?php
                             $model_path = '\\Modules\Backend\Models\\' . $view['model'];
                             $model = new $model_path();
-                            $options = $model::find()
+                            $options = $model::find(array('conditions' => 'deleted = 0'));
                         ?>
 
 						{% if data is not null %}
@@ -37,16 +37,15 @@
                         </div>
                         <span class="btn btn-default btn-file">
                             Browse <input type="file" class="caro-upload-image" location="images">
-                            {% if data is not null %}
-                            <input type="hidden" name="{{ name }}" class="caro-value-upload" value="{{ data.readAttribute(name) }}">
-                            {% else %}
-                            <input type="hidden" name="{{ name }}" class="caro-value-upload" value="">
-                            {% endif %}
+                            <input type="hidden" name="{{ name }}" class="caro-value-upload" value="{% if data is not null %}{{ data.readAttribute(name) }}{% endif %}">
                         </span>
 
                     {% elseif view['type'] == 'textarea' %}
                         <textarea name="{{ name }}" rows="4" class="span9" id="editview-{{ name }}">{% if data is not null %}{{ data.readAttribute(name) }}{% endif %}</textarea>
                         <script>CKEDITOR.replace('editview-{{ name }}');</script>
+
+                    {% elseif view['type'] == 'note' %}
+                        <textarea name="{{ name }}" rows="4" class="span9">{% if data is not null %}{{ data.readAttribute(name) }}{% endif %}</textarea>
 
                     {% elseif view['type'] == 'customCode' %}
                         {% if data is not null %}

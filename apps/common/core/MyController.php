@@ -34,6 +34,9 @@ class MyController extends Controller
         // language
         $this->t = $this->getTranslation();
         $this->view->setVar('t', $this->t);
+        // controller, action
+        $this->view->setVar('current_controller', $this->controller_name);
+        $this->view->setVar('current_action', $this->action_name);
     }
 
     public function beforeExecuteRoute(Dispatcher $dispatcher)
@@ -86,12 +89,14 @@ class MyController extends Controller
         $folder = !empty($folder) ? $folder: '';
         $sub_folder = $folder . '/' . date('Y') . '/' . date('m') . '/' . date('d') . '/';
         $path_uri = '/public/uploads/' . $sub_folder;
+        $uri = '/uploads/' . $sub_folder;
         $path_full = APP_PATH . $path_uri;
         if (!is_dir($path_full)) {
             mkdir($path_full, 0777, true);
         }
 
         return array(
+            'uri' => $uri,
             'sub_folder' => $path_uri,
             'folder' => $path_full
         );

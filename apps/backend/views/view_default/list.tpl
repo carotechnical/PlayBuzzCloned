@@ -3,6 +3,14 @@
     <h1>
         {{ title }}
     </h1>
+    <ol class="breadcrumb">
+        <li><a href="{{ url('/'~carofw['backendUrl']~'/'~controller~'/'~action_edit) }}">{{ t._('Create') }}</a></li>
+        {% if extra_view_menus is defined %}
+            {% for m in extra_view_menus %}
+                <li><a href="{{ url('/'~carofw['backendUrl']~m['url']) }}">{{ t._(m['label']) }}</a></li>
+            {% endfor %}
+        {% endif %}
+    </ol>
 </section>
 
 <section class="content">
@@ -30,6 +38,13 @@
                                                             {% if search[name] is defined %}{% set search_value = search[name] %}{% else %}{% set search_value = '' %}{% endif %}
                                                             {% if view['type'] == 'select' %}
                                                                 {{ select(name, carofw['app_list_strings'][view['options']], 'using': ['id', 'name'], 'value': search_value, 'useEmpty': true, 'emptyText': view['label'], 'emptyValue': '', 'class': 'form-control') }}
+                                                            {% elseif view['type'] == 'relate' %}
+                                                                <?php
+                                                                    $model_path = '\\Modules\Backend\Models\\' . $view['model'];
+                                                                    $model = new $model_path();
+                                                                    $options = $model::find(array('conditions' => 'deleted = 0'));
+                                                                ?>
+                                                                {{ select(name, options, 'using': ['id', 'name'], 'value': search_value, 'class': 'form-control', 'useEmpty': true) }}
                                                             {% else %}
                                                                 <input type="{{ view['type'] }}" name="{{ name }}" placeholder="{{ view['label'] }}" value="{{ search_value }}" class="form-control" />
                                                             {% endif %}

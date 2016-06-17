@@ -12,6 +12,7 @@
 namespace Modules\Backend\Controllers;
 
 
+use Modules\Backend\Models\Menus;
 use Modules\Backend\Models\Users;
 use Modules\Core\MyController;
 
@@ -41,6 +42,8 @@ class ControllerBase extends MyController
             $current_user = Users::findFirst($auth['id']);
             $this->view->setVar('current_user', $current_user);
         }
+        // menus
+        $this->view->setVar('current_menus', $this->getAllMenus());
     }
 
     /**
@@ -51,7 +54,7 @@ class ControllerBase extends MyController
      */
     protected function getModel($model_name = null)
     {
-		$model_focus = $this->model_name;
+        $model_focus = $this->model_name;
         if ($model_name) {
             $model_focus = $model_name;
         }
@@ -69,6 +72,40 @@ class ControllerBase extends MyController
         }
 
         return null;
+    }
+
+    /**
+     * @param $url_query
+     * @param $view_fields
+     * @return array
+     */
+    protected function getFieldsSearch($url_query, $view_fields)
+    {
+        $conditions = 'deleted = 0';
+        $search = array();
+        foreach ($url_query as $field => $value) {
+            if (!empty($view_fields[$field]['search']) && $view_fields[$field]['search'] == true) {
+                $operator = !empty($view_fields[$field]['operator']) ? $view_fields[$field]['operator'] : '=';
+                switch ($operator) {
+                    case 'like':
+                        if ($value) {
+                            $conditions .= " AND $field like :$field:";
+                            $search[$field] = "%$value%";
+                        }
+                        break;
+                    default:
+                        if ($value) {
+                            $conditions .= " AND $field = :$field:";
+                            $search[$field] = $value;
+                        }
+                }
+            }
+        }
+
+        return array(
+            'conditions' => ($conditions == '1') ? '' : $conditions,
+            'parameters' => $search
+        );
     }
 
     /**
@@ -121,37 +158,41 @@ class ControllerBase extends MyController
     }
 
     /**
-     * @param $url_query
-     * @param $view_fields
-     * @return array
+     * @return \Phalcon\Mvc\Model\ResultsetInterface
      */
-    protected function getFieldsSearch($url_query, $view_fields)
+    public function getAllMenus()
     {
-        $conditions = 'deleted = 0';
-        $search = array();
-        foreach ($url_query as $field => $value) {
-            if (!empty($view_fields[$field]['search']) && $view_fields[$field]['search'] == true) {
-                $operator = !empty($view_fields[$field]['operator']) ? $view_fields[$field]['operator'] : '=';
-                switch ($operator) {
-                    case 'like':
-                        if ($value) {
-                            $conditions .= " AND $field like :$field:";
-                            $search[$field] = "%$value%";
-                        }
-                        break;
-                    default:
-                        if ($value) {
-                            $conditions .= " AND $field = :$field:";
-                            $search[$field] = $value;
-                        }
+        $menus = array();
+
+        $file_menu = APP_PATH . 'apps/backend/permissions/menus.php';
+        if (is_file($file_menu)) {
+            return include $file_menu;
+        } else {
+            $parent_menus = Menus::find(array(
+                'conditions' => "deleted = 0 AND (parent_id IS NULL OR parent_id = '')",
+                'order' => 'weight ASC'
+            ));
+            if ($parent_menus) {
+                $i = 0;
+                foreach ($parent_menus->toArray() as $p_menus) {
+                    $menus[$i] = $p_menus;
+                    $menus[$i]['children'] = Menus::find(array(
+                        'conditions' => "deleted = 0 AND parent_id = :menu_id:",
+                        'bind' => array('menu_id' => $p_menus['id']),
+                        'order' => 'weight ASC'
+                    ))->toArray();
+                    $i++;
                 }
             }
+
+            $file = fopen($file_menu, "w");
+            $content = "<?php";
+            $content .= "\n\nreturn " . var_export($menus, true) . ";";
+            fwrite($file, $content);
+            fclose($file);
         }
 
-        return array(
-            'conditions' => ($conditions == '1') ? '' : $conditions,
-            'parameters' => $search
-        );
+        return $menus;
     }
 
     /**
@@ -464,8 +505,7 @@ class ControllerBase extends MyController
 
                     if ($func == 'del') {
                         $mid_data = $mid_model::findFirst(array(
-                            $subpanel_def['mid_field1'] . '=' . $current_id,
-                            $subpanel_def['mid_field2'] . '=' . $rel_id
+                            "conditions" => $subpanel_def['mid_field1'] . '=' . $current_id . " and " . $subpanel_def['mid_field2'] . '=' . $rel_id
                         ));
                         if ($mid_data->delete() == false) {
                             $this->flash->error($this->t->_('Sorry, can not remove this record relate'));
@@ -606,15 +646,19 @@ class ControllerBase extends MyController
             // Process upload file
             foreach ($this->request->getUploadedFiles() as $file){
                 // Move the file into the application
-                $path_file = $upload_path . $file->getName();
+                $file_upload_name = $file->getName();
+                // hash file name
+                //$file_upload_name = md5($file->getName()) . '.' . $file->getExtension();
+                $path_file = $upload_path . $file_upload_name;
                 $upload_result = $file->moveTo($path_file);
                 // result upload
                 if ($upload_result) {
                     $isUploaded = true;
                     $data_upload[] = array(
+                        'folder' => $base_path['folder'],
                         'name' => $file->getName(),
                         'size' => $file->getSize(),
-                        'path' => $this->url->get($base_path['sub_folder']) . $file->getName()
+                        'path' => $this->url->get($base_path['uri']) . $file_upload_name
                     );
                 } else {
                     $isUploaded = false;

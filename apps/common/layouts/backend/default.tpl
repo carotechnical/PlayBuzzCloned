@@ -19,7 +19,6 @@
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link rel="stylesheet" href="{{ static_url() }}/themes/backend/css/skins/_all-skins.min.css">
-    <link rel="stylesheet" href="{{ static_url() }}/themes/backend/css/style.css">
 
     <script>
         var base_url = '{{ url() }}';
@@ -37,7 +36,7 @@
     <![endif]-->
 </head>
 
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-blue sidebar-mini {% if cookies.get('is_collapse').getValue() == '1' %} sidebar-collapse{% endif %}">
 
 <div class="wrapper">
     <header class="main-header">
@@ -52,7 +51,7 @@
         <!-- Header Navbar: style can be found in header.less -->
         <nav class="navbar navbar-static-top" role="navigation">
             <!-- Sidebar toggle button-->
-            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+            <a href="#" onclick="getBodyClass()" class="sidebar-toggle" data-toggle="offcanvas" role="button">
                 <span class="sr-only">Toggle navigation</span>
             </a>
             <!-- Navbar Right Menu -->
@@ -61,7 +60,11 @@
                     <ul class="nav navbar-nav">
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <img src="{{ current_user.avatar }}" class="user-image" alt="User Image">
+                                {% if current_user.avatar %}
+                                    <img src="{{ current_user.avatar }}" class="img-circle" alt="User Image" width="17px">
+                                {% else %}
+                                    <img src="{{ static_url() }}/themes/backend/img/avatar.png" class="img-circle" alt="User Image" width="17px">
+                                {% endif %}
                                 <span class="hidden-xs">Admin</span>
                             </a>
                             <ul class="dropdown-menu">
@@ -82,7 +85,11 @@
             <div class="user-panel">
                 <div class="pull-left image">
                     {% if current_user is defined %}
-                        <img src="{{ current_user.avatar }}" class="img-circle" alt="User Image">
+                        {% if current_user.avatar %}
+                            <img src="{{ current_user.avatar }}" class="img-circle" alt="User Image">
+                        {% else %}
+                            <img src="{{ static_url() }}/themes/backend/img/avatar.png" class="img-circle" alt="User Image">
+                        {% endif %}
                     {% endif %}
                 </div>
                 <div class="pull-left info">
@@ -101,79 +108,61 @@
             <!-- /.search form -->
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
-                <li>
-                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/dashboard') }}">
-                        <i class="fa fa-dashboard"></i> <span>{{ t._('Dashboard') }}</span>
-                    </a>
-                </li>
-                <li class="treeview">
-                    <a href="">
-                        <i class="fa fa-cubes"></i>
-                        <span>{{ t._('Own Buzz') }}</span>
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li class="treeview">
-                            <a href="">
-                                <i class="fa fa-map-signs"></i>
-                                <span>{{ t._('List') }}</span>
-                                <i class="fa fa-angle-left pull-right"></i>
-                            </a>
-                            <ul class="treeview-menu">
-                                <li>
-                                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/newslist') }}">
-                                        <i class="fa fa-reorder"></i>
-                                        <span>{{ t._('View') }}</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/newslist/edit') }}">
-                                        <i class="fa fa-plus"></i>
-                                        <span>{{ t._('Create') }}</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="treeview">
-                            <a href="">
-                                <i class="fa fa-check-square-o"></i>
-                                <span>{{ t._('Personality Quiz') }}</span>
-                                <i class="fa fa-angle-left pull-right"></i>
-                            </a>
-                            <ul class="treeview-menu">
-                                <li>
-                                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/quizpersonality') }}">
-                                        <i class="fa fa-reorder"></i>
-                                        <span>{{ t._('View') }}</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/quizpersonality/edit') }}">
-                                        <i class="fa fa-plus"></i>
-                                        <span>{{ t._('Create') }}</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                {% for m in current_menus %}
+                    <li class="{% if m['children'] %}treeview{% endif %}{% if current_controller == m['controller_name'] %} active{% endif %}">
+                        {% set current_menu_link = url('/' ~ carofw['backendUrl'] ~ '/' ~ m['controller_name'] ~ '/' ~ m['action_name']) %}
+                        {% if m['link'] %}
+                            {% set current_menu_link = m['link'] %}
+                        {% endif %}
+                        <a href="{{ current_menu_link }}">
+                            <i class="{{ m['class'] }}"></i> <span>{{ t._(m['name']) }}</span>
+                            {% if m['children'] %}<i class="fa fa-angle-left pull-right"></i>{% endif %}
+                        </a>
 
-                    </ul>
+                        {% if m['children'] is not empty %}
+                            <ul class="treeview-menu">
+                                {% for cm in m['children'] %}
+                                    <li class="{% if current_controller == cm['controller_name'] and current_action == cm['action_name'] %}active{% endif %}">
+                                        {% set current_menu_link = url('/' ~ carofw['backendUrl'] ~ '/' ~ cm['controller_name'] ~ '/' ~ cm['action_name']) %}
+                                        {% if cm['link'] %}
+                                            {% set current_menu_link = cm['link'] %}
+                                        {% endif %}
+                                        <a href="{{ current_menu_link }}">
+                                            <i class="{{ cm['class'] }}"></i> {{ t._(cm['name']) }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+
+                <li class="{% if current_controller == 'menus' %}active{% endif %}">
+                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/menus') }}">
+                        <i class="fa fa-bars"></i> <span>{{ t._('Menus') }}</span>
+                    </a>
                 </li>
-                <li class="treeview">
+                <li class="treeview{% if current_controller == 'users' %} active{% endif %}">
                     <a href="{{ url('/'~ carofw['backendUrl'] ~'/users') }}">
                         <i class="fa fa-users"></i>
                         <span>{{ t._('Users') }}</span>
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/users') }}"><i class="fa fa-reorder"></i> {{ t._('View Users') }}</a></li>
-                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/edit') }}"><i class="fa fa-plus"></i> {{ t._('Create User') }}</a></li>
-                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/groups') }}"><i class="fa fa-reorder"></i> {{ t._('View Groups') }}</a></li>
-                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/edit_group') }}"><i class="fa fa-plus"></i> {{ t._('Create Group') }}</a></li>
-                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/roles') }}"><i class="fa fa-reorder"></i> {{ t._('View Roles') }}</a></li>
-                        <li><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/edit_role') }}"><i class="fa fa-plus"></i> {{ t._('Create Role') }}</a></li>
+                        <li class="{% if current_controller == 'users' and current_action == 'index' %}active{% endif %}"><a href="{{ url('/'~ carofw['backendUrl'] ~'/users') }}"><i class="fa fa-user"></i> {{ t._('View Users') }}</a></li>
+                        <li class="{% if current_controller == 'users' and current_action == 'edit' %}active{% endif %}"><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/edit') }}"><i class="fa fa-user-plus"></i> {{ t._('Create User') }}</a></li>
+                        <li class="{% if current_controller == 'users' and current_action == 'groups' %}active{% endif %}"><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/groups') }}"><i class="fa fa-users"></i> {{ t._('View Groups') }}</a></li>
+                        <li class="{% if current_controller == 'users' and current_action == 'edit_group' %}active{% endif %}"><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/edit_group') }}"><i class="fa fa-plus-square"></i> {{ t._('Create Group') }}</a></li>
+                        <li class="{% if current_controller == 'users' and current_action == 'roles' %}active{% endif %}"><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/roles') }}"><i class="fa fa-share-alt-square"></i> {{ t._('View Roles') }}</a></li>
+                        <li class="{% if current_controller == 'users' and current_action == 'edit_role' %}active{% endif %}"><a href="{{ url('/'~ carofw['backendUrl'] ~'/users/edit_role') }}"><i class="fa fa-plus-circle"></i> {{ t._('Create Role') }}</a></li>
                     </ul>
                 </li>
-                <li>
+                <li class="{% if current_controller == 'builder' %}active{% endif %}">
+                    <a href="{{ url('/'~ carofw['backendUrl'] ~'/builder') }}">
+                        <i class="fa fa-archive"></i> <span>{{ t._('Module Builder') }}</span>
+                    </a>
+                </li>
+                <li class="{% if current_controller == 'settings' %}active{% endif %}">
                     <a href="{{ url('/'~ carofw['backendUrl'] ~'/settings') }}">
                         <i class="fa fa-cog"></i> <span>{{ t._('Settings') }}</span>
                     </a>
@@ -221,7 +210,6 @@
 <script src="{{ static_url() }}/themes/backend/plugins/chartjs/Chart.min.js"></script>
 <!-- AdminLTE -->
 <script src="{{ static_url() }}/themes/backend/js/theme.js"></script>
-<script src="{{ static_url() }}/themes/backend/js/functions.js"></script>
 
 </body>
 </html>
