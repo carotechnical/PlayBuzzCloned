@@ -41,6 +41,6 @@ class NewsListController extends ControllerBase
 
         
         
-        $this->response->redirect('/admin/newslist/detail/' . $record->id);
+        $this->response->redirect('/admin/news_list/detail/' . $record->id);
     }
 }

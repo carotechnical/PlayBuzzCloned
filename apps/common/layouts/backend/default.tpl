@@ -27,6 +27,7 @@
     <script src="{{ static_url() }}/themes/backend/plugins/jQuery/jQuery-2.1.4.min.js"></script>
     <script src="{{ static_url() }}/themes/backend/ckeditor/ckeditor.js"></script>
     <script src="{{ static_url() }}/themes/backend/js/systemJs.js" type="text/javascript" ></script>
+    <script src="{{ static_url() }}/themes/backend/js/functions.js" type="text/javascript" ></script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
