@@ -123,33 +123,37 @@ function detailview_convert_item_list_from_json(string_json) {
     if (!string_json) {
         return false;
     }
+
     var json = JSON.parse(string_json);
     var html = '';
     $.each(json, function (k, v) {
 
-        html += '<div class="pl-item">'
-            + '<p><b>Title:</b><br/>' + v.title + '</p>'
-            + '<p><b>Image/Video URL:</b><br/>' + v.url + '</p>'
-            + '<p><b>Caption:</b><br/>' + v.caption + '</p>'
-            + '<p><hr/></p>'
-            + '</div>';
+        html += '' +
+            '<div class="pl-item">' +
+                '<p><b>Title:</b><br/>' + v.title + '</p>' +
+                '<p><b>Image/Video URL:</b><br/>' + v.url + '</p>' +
+                '<p><b>Caption:</b><br/>' + v.caption + '</p>' +
+                '<p><hr/></p>' +
+            '</div>';
     });
 
     $('#pl-items-list').html(html);
 }
+
 /* List- */
 /* -Quiz */
 function quiz_populate_associate_result() {
     var html = '';
     $('#pl-items-result').find('input[name="result_title[]"]').each(function () {
 
-        html += '<li>' +
-            '<span>' + $(this).val() + '</span>' +
-            '<select class="point_associate">' +
-            '<option value="0">0</option>' +
-            '<option value="1">1</option>' +
-            '<option value="2">2</option>' +
-            '</select>' +
+        html += '' +
+            '<li>' +
+                '<span>' + $(this).val() + '</span>' +
+                '<select class="point_associate">' +
+                '<option value="0">0</option>' +
+                '<option value="1">1</option>' +
+                '<option value="2">2</option>' +
+                '</select>' +
             '</li>';
     });
 
